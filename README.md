@@ -1,5 +1,5 @@
 # cloudeflare-dynamic-dns
-Keep your Domains A record pointing to your dynamic IP address
+Keep your Domains A record pointing to your dynamic IP address  
 **NOTE:** currently only work with a single A record
 
 ## How to install
