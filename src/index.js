@@ -5,6 +5,7 @@ import { getRootARecordContent, saveIp } from './ip-manager';
 import logger from './logger';
 
 const interval = process.env.INTERVAL_IN_MINUTES;
+let isRunning = false;
 
 if (!interval) {
   run();
@@ -16,6 +17,8 @@ if (!interval) {
 
 
 function run() {
+  if (isRunning) {return;}
+  isRunning = true;
   const ipPromises = [
     publicIp.v4().then((ip) => (logger.debug(`Current IP: ${ip}`), ip)),
     getRootARecordContent()
@@ -23,6 +26,7 @@ function run() {
 
   Promise.all(ipPromises)
     .then(([currentIp, knownIp]) => currentIp !== knownIp ? saveIp(currentIp) : noop())
+    .then(() => isRunning = false)
     .catch(logger.error);
 }
 
