@@ -26,8 +26,8 @@ function run() {
 
   Promise.all(ipPromises)
     .then(([currentIp, knownIp]) => currentIp !== knownIp ? saveIp(currentIp) : noop())
-    .then(() => isRunning = false)
-    .catch(logger.error);
+    .catch(logger.error)
+    .finally(() => isRunning = false);
 }
 
 function noop() {
