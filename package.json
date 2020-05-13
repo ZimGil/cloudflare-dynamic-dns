@@ -18,8 +18,8 @@
   "dependencies": {
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
+    "log4js": "^6.2.1",
     "node-cron": "^2.0.3",
-    "public-ip": "^4.0.1",
-    "winston": "^3.2.1"
+    "public-ip": "^4.0.1"
   }
 }
