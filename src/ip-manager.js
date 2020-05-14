@@ -7,32 +7,27 @@ const zoneId = process.env.ZONE_ID;
 axios.defaults.headers.common['Authorization'] = `Bearer ${apiToken}`;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 let _rootARecordId;
+let records = [];
 
-export function getRootARecordContent() {
-  return getRootARecordId()
-    .then((rootRecordId) => axios.get(`${cloudflareApi}/zones/${zoneId}/dns_records/${rootRecordId}`))
-    .then(({data}) => {
-      const content = data.result.content;
-      logger.debug(`Root A record content: ${content}`);
-      return content;
-    });
+export function patchRecords(content) {
+  const foo = records.map(({id, name}) => {
+    const URI = `${cloudflareApi}/zones/${zoneId}/dns_records/${id}`;
+    return axios.patch(URI, {content})
+      .then(() => logger.debug(`Record for ${name} patched to ${content}`));
+  });
+
+  return Promise.all(foo)
+    .then(() => logger.info(`All records patched to ${content}`));
 }
 
-export function saveIp(content) {
-  return getRootARecordId()
-    .then((rootRecordId) => axios.patch(`${cloudflareApi}/zones/${zoneId}/dns_records/${rootRecordId}`, {content}))
-    .then(({data}) => logger.info(`Root A record contect patched to: ${data.result.content}`));
+export function getCurrentContent() {
+  return getARecords()
+    .then((_records) => records = _records)
+    .then(() => records.length && records[0].content);
 }
 
-function getRootARecordId() {
-  if (_rootARecordId) {return Promise.resolve(_rootARecordId);}
+function getARecords() {
   const URI = `${cloudflareApi}/zones/${zoneId}/dns_records/`;
   return axios.get(`${cloudflareApi}/zones/${zoneId}/dns_records/`)
-    .then(({data}) => data.result.find((record) => record.type === 'A'))
-    .then((rootRecord) => {
-      if (rootRecord && rootRecord.id) {
-        _rootARecordId = rootRecord.id;
-        return _rootARecordId;
-      }
-    });
+    .then(({data}) => data.result.filter(({type}) => type === 'A'))
 }

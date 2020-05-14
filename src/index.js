@@ -1,7 +1,7 @@
 import publicIp from 'public-ip';
 import cron from 'node-cron';
 
-import { getRootARecordContent, saveIp } from './ip-manager';
+import { patchRecords, getCurrentContent } from './ip-manager';
 import logger from './logger';
 
 const interval = process.env.INTERVAL_IN_MINUTES;
@@ -21,11 +21,11 @@ function run() {
   isRunning = true;
   const ipPromises = [
     publicIp.v4().then((ip) => (logger.debug(`Current IP: ${ip}`), ip)),
-    getRootARecordContent()
+    getCurrentContent().then((ip) => (logger.debug(`Known IP: ${ip}`), ip)),
   ];
 
   Promise.all(ipPromises)
-    .then(([currentIp, knownIp]) => currentIp !== knownIp ? saveIp(currentIp) : noop())
+    .then(([currentIp, knownIp]) => currentIp !== knownIp ? patchRecords(currentIp) : noop())
     .catch((e) => logger.error(e))
     .finally(() => isRunning = false);
 }
