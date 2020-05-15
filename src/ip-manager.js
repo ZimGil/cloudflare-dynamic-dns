@@ -6,7 +6,6 @@ const apiToken = process.env.CLOUDEFLARE_API_TOKEN;
 const zoneId = process.env.ZONE_ID;
 axios.defaults.headers.common['Authorization'] = `Bearer ${apiToken}`;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
-let _rootARecordId;
 let records = [];
 
 export function patchRecords(content) {
