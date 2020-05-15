@@ -2,7 +2,7 @@ import publicIp from 'public-ip';
 import cron from 'node-cron';
 
 import { patchRecords, getCurrentContent } from './ip-manager';
-import logger from './logger';
+import logger, { ipChangeLogger } from './logger';
 
 const interval = process.env.INTERVAL_IN_MINUTES;
 let isRunning = false;
@@ -25,11 +25,13 @@ function run() {
   ];
 
   Promise.all(ipPromises)
-    .then(([currentIp, knownIp]) => currentIp !== knownIp ? patchRecords(currentIp) : noop())
+    .then(([currentIp, knownIp]) => {
+      if (currentIp !== knownIp) {
+        ipChangeLogger.warn(`Public IP Changed from ${knownIp} to ${currentIp}`);
+        return patchRecords(currentIp);
+      }
+      logger.info('Current record matches current IP');
+    })
     .catch((e) => logger.error(e))
     .finally(() => isRunning = false);
-}
-
-function noop() {
-  logger.info('Current record matches current IP')
 }
