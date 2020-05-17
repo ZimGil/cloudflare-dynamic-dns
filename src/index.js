@@ -6,12 +6,11 @@ import logger, { ipChangeLogger } from './logger';
 
 const interval = process.env.INTERVAL_IN_MINUTES;
 let isRunning = false;
+let cronExpression = `*/${interval} * * * *`;
 
-if (!interval) {
+if (!cron.validate(cronExpression)) {
   run();
 } else {
-  let cronExpression = `*/${interval} * * * *`;
-  cronExpression = cron.validate(cronExpression) ? cronExpression : '0 * * * *'
   cron.schedule(cronExpression, run);
 }
 
