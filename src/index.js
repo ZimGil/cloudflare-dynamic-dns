@@ -4,11 +4,17 @@ import cron from 'node-cron';
 import { patchRecords, getCurrentContent } from './ip-manager';
 import logger, { ipChangeLogger } from './logger';
 
-const interval = process.env.INTERVAL_IN_MINUTES;
 let isRunning = false;
-let cronExpression = `*/${interval} * * * *`;
+let cronExpression = null;
+const cronIntervalInMinutes = `*/${process.env.INTERVAL_IN_MINUTES} * * * *`;
 
-if (!cron.validate(cronExpression)) {
+if (cron.validate(process.env.CRON_EXPRESSION)) {
+  cronExpression = process.env.CRON_EXPRESSION;
+} else if (cron.validate(cronIntervalInMinutes)) {
+  cronExpression = cronIntervalInMinutes;
+}
+
+if (!cronExpression) {
   run();
 } else {
   cron.schedule(cronExpression, run);
