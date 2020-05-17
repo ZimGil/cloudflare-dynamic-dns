@@ -14,8 +14,8 @@ $ npm run build
 Some environment variables are needed (`.env` file is supported):
 * `ZONE_ID` - Zone ID, can be found in your cloudflare site Overview.
 * `CLOUDEFLARE_API_TOKEN` - [Create an API Token](https://dash.cloudflare.com/profile/api-tokens) - use the `Edit zone DNS` template and choose your Zone.
-* `CRON_EXPRESSION` - A [`cron`](https://en.wikipedia.org/wiki/Cron) expression.
-* `INTERVAL_IN_MINUTES` - How offten should the IP be verified in minutes. (Overriden by `CRON_EXPRESSION`)
+* `CRON_EXPRESSION`*(optional)* - A [`cron`](https://en.wikipedia.org/wiki/Cron) expression.
+* `INTERVAL_IN_MINUTES` *(optional)* - How offten should the IP be verified in minutes. (Overriden by `CRON_EXPRESSION`)
 
 **NOTE:** In case of an invalid cron expression, single execution will replace the scheduled execution.
 
