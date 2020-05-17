@@ -37,6 +37,14 @@ function run() {
       }
       logger.info('Current record matches current IP');
     })
-    .catch((e) => logger.error(e))
+    .catch((e) => {
+      if (e.response.status) {
+        const {status, statusText, data} = e.response;
+        logger.error(`HTTP ERROR: ${status} (${statusText})`);
+        logger.error(data);
+      } else {
+        logger.error(e)
+      }
+    })
     .finally(() => isRunning = false);
 }
