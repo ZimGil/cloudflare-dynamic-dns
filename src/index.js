@@ -6,7 +6,9 @@ import logger, { ipChangeLogger } from './logger';
 
 let isRunning = false;
 let cronExpression = null;
-const cronIntervalInMinutes = `*/${process.env.INTERVAL_IN_MINUTES} * * * *`;
+// TODO - remove INTERVAL_IN_MINUTES validation after resolution of:
+// https://github.com/node-cron/node-cron/issues/226
+const cronIntervalInMinutes = process.env.INTERVAL_IN_MINUTES && `*/${process.env.INTERVAL_IN_MINUTES} * * * *`;
 
 if (cron.validate(process.env.CRON_EXPRESSION)) {
   cronExpression = process.env.CRON_EXPRESSION;
