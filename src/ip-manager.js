@@ -9,13 +9,13 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 let records = [];
 
 export function patchRecords(content) {
-  const foo = records.map(({id, name}) => {
+  const patchPromises = records.map(({id, name}) => {
     const URI = `${cloudflareApi}/zones/${zoneId}/dns_records/${id}`;
     return axios.patch(URI, {content})
       .then(() => logger.debug(`Record for ${name} patched to ${content}`));
   });
 
-  return Promise.all(foo)
+  return Promise.all(patchPromises)
     .then(() => logger.info(`All records patched to ${content}`));
 }
 
