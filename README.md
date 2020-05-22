@@ -1,5 +1,6 @@
 # cloudeflare-dynamic-dns
 Keep your Domain's A record pointing to your public IP address
+
 **Warning:** This will patch ***ALL*** A records to your public IP
 
 ## How to install
