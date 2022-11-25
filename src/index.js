@@ -1,5 +1,6 @@
 import publicIp from 'public-ip';
 import cron from 'node-cron';
+import { uniq } from 'lodash';
 
 import { patchRecords, getCurrentContent } from './ip-manager';
 import logger, { ipChangeLogger } from './logger';
@@ -27,20 +28,28 @@ function run() {
   if (isRunning) {return;}
   isRunning = true;
   const ipPromises = [
-    publicIp.v4().then((ip) => (logger.debug(`Current IP: ${ip}`), ip)),
-    getCurrentContent().then((ip) => (logger.debug(`Known IP: ${ip}`), ip)),
+    publicIp.v4().then((ip) => {
+      logger.debug(`Current IP: ${ip}`)
+      return ip;
+    }),
+    getCurrentContent().then((ips) => {
+      const uniqueIps = uniq(ips);
+      logger.debug(`Known IPs: [${uniqueIps.join(', ')}]`)
+      return uniqueIps;
+    })
   ];
 
   Promise.all(ipPromises)
-    .then(([currentIp, knownIp]) => {
-      if (currentIp !== knownIp) {
-        ipChangeLogger.warn(`Public IP Changed from ${knownIp} to ${currentIp}`);
+    .then(([currentIp, knownIps]) => {
+      const differentIps = knownIps.filter((knownIp) => knownIp !== currentIp);
+      if (differentIps.length) {
+        ipChangeLogger.warn(`Public IP Changed from [${differentIps.join(', ')}] to [${currentIp}]`);
         return patchRecords(currentIp);
       }
       logger.info('Current record matches current IP');
     })
     .catch((e) => {
-      if (e.response.status) {
+      if (e.response?.status) {
         const {status, statusText, data} = e.response;
         logger.error(`HTTP ERROR: ${status} (${statusText})`);
         logger.error(data);
