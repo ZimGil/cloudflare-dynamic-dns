@@ -6,9 +6,40 @@ on:
       - master
 
 jobs:
-  build:
-    name: Build
+  gil-deployment:
     runs-on: ubuntu-18.04
+    environment: Gil
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - name: Install dependencies
+        run: |
+          npm install
+          npm run build
+      - name: Copy to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: "dist/*,package.json,package-lock.json"
+          target: ${{ secrets.TARGET }}
+      - name: Install and restart service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: cd ${{ secrets.TARGET }} && npm install --production && sudo systemctl restart ${{ secrets.SERVICE_NAME }}
+  doron-deployment:
+    runs-on: ubuntu-18.04
+    environment: Doron
     steps:
       - name: Checkout
         uses: actions/checkout@v2
